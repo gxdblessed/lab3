@@ -1,4 +1,4 @@
-﻿#include <iostream>
+#include <iostream>
 using namespace std;
 
 struct Node {
@@ -12,12 +12,16 @@ struct List {
     Node* lastNode = nullptr;
 
     void toPreposition(int targetPosition) {
-        while (currentPosition != targetPosition) {
+        int steps = targetPosition - currentPosition;
+        if (steps < 0) {
+            steps += size; 
+        }
+        for (int i = 0; i < steps; ++i) {
             lastNode = lastNode->next;
-            currentPosition++;
-            if (currentPosition >= size) { currentPosition = 0; }
+            currentPosition = (currentPosition + 1) % size; 
         }
     }
+
 
     void add(int newValue) {
         toPreposition(size);
