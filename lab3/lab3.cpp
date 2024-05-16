@@ -22,9 +22,7 @@ struct List {
         }
     }
 
-
     void add(int newValue) {
-        toPreposition(size);
         Node* newNode = new Node();
         newNode->value = newValue;
         if (size == 0) {
@@ -54,6 +52,7 @@ struct List {
             lastNode = newNode;
         }
         size++;
+        currentPosition++;
     }
 
     int elementAt(int index) {
@@ -65,9 +64,12 @@ struct List {
         toPreposition(index);
         Node* toRemove = lastNode->next;
         lastNode->next = toRemove->next;
+        if (index == size - 1) {
+            lastNode = lastNode->next;
+        }
         delete toRemove;
         size--;
-        if (index == size) { lastNode = nullptr; }
+        if (size == 0) { lastNode = nullptr; }
         if (currentPosition >= size) { currentPosition = 0; }
     }
 
@@ -77,41 +79,40 @@ struct List {
                 insert(i, 1);
             }
             lastNode = lastNode->next;
+            currentPosition++;
         }
     }
 
     void removeNegative() {
         if (size == 0) { return; }
+        Node* current = lastNode;
         for (int i = 0; i < size; i++) {
-            if (lastNode->next->value < 0) {
+            if (current->next->value < 0) {
                 removeAt(i);
+                i--;
             }
             else {
-                lastNode = lastNode->next;
+                current = current->next;
             }
         }
     }
 
     int count(int targetValue) {
         int count = 0;
+        Node* current = lastNode;
         for (int i = 0; i < size; i++) {
-            if (lastNode->value == targetValue) {
+            if (current->value == targetValue) {
                 count++;
             }
-            lastNode = lastNode->next;
+            current = current->next;
         }
         return count;
     }
 
     void clear() {
-        for (int i = 0; i < size; i++) {
-            Node* toDelete = lastNode->next;
-            lastNode->next = toDelete->next;
-            delete toDelete;
+        while (size > 0) {
+            removeAt(0);
         }
-        lastNode = nullptr;
-        size = 0;
-        currentPosition = 0;
     }
 
     int count() {
