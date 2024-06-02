@@ -1,220 +1,197 @@
 #include <iostream>
 using namespace std;
 
+void instruction() {
+	cout << "Для добавления элемента в очередь, введите 1\n";
+	cout << "Для вставки в данную позицию данного значения, введите 2\n";
+	cout << "Для удаления элемента из данной позиции, введите 3\n";
+	cout << "Для доступа к числу в данной позиции, введите 4\n";
+	cout << "Для подсчета количества элементов в списке, введите 5\n";
+	cout << "Для вставки перед каждым отрицательным элементом числа 1, введите 6\n";
+	cout << "Для удаления отрицательных элементов из списка, введите 7\n";
+	cout << "Для подсчета количества конкретного элемента в списке, введите 8\n";
+	cout << "Для очистки всего списка, введите 9\n";
+	cout << "Для завершения работы программы, введите 0\n\n";
+}
+
 struct Node {
-    int value;
-    Node* next;
+	int param = 0;
+	Node* next = nullptr;
 };
 
 struct List {
-    int size = 0;
-    int currentPosition = 0;
-    Node* lastNode = nullptr;
+	int counting = 0;
+	int position = 0;
+	Node* last = nullptr;
 
-    void toPreposition(int targetPosition) {
-        int steps = targetPosition - currentPosition;
-        if (steps < 0) {
-            steps += size; 
-        }
-        for (int i = 0; i < steps; ++i) {
-            lastNode = lastNode->next;
-            currentPosition = (currentPosition + 1) % size; 
-        }
-    }
-
-    void add(int newValue) {
-        Node* newNode = new Node();
-        newNode->value = newValue;
-        if (size == 0) {
-            lastNode = newNode;
-            lastNode->next = newNode;
-        }
-        else {
-            newNode->next = lastNode->next;
-            lastNode->next = newNode;
-            lastNode = newNode;
-        }
-        size++;
-        currentPosition++;
-    }
-
-    void insert(int index, int newValue) {
-        if (index == size) {
-            add(newValue);
-            return;
-        }
-        toPreposition(index);
-        Node* newNode = new Node();
-        newNode->value = newValue;
-        newNode->next = lastNode->next;
-        lastNode->next = newNode;
-        if (index == size - 1) {
-            lastNode = newNode;
-        }
-        size++;
-        currentPosition++;
-    }
-
-    int elementAt(int index) {
-        toPreposition(index);
-        return lastNode->next->value;
-    }
-
-    void removeAt(int index) {
-        toPreposition(index);
-        Node* toRemove = lastNode->next;
-        lastNode->next = toRemove->next;
-        if (index == size - 1) {
-            lastNode = lastNode->next;
-        }
-        delete toRemove;
-        size--;
-        if (size == 0) { lastNode = nullptr; }
-        if (currentPosition >= size) { currentPosition = 0; }
-    }
-
-    void insertBeforeNegative() {
-        for (int i = 0; i < size; i++) {
-            if (lastNode->next->value < 0) {
-                insert(i, 1);
-            }
-            lastNode = lastNode->next;
-            currentPosition++;
-        }
-    }
-
-    void removeNegative() {
-        if (size == 0) { return; }
-        Node* current = lastNode;
-        for (int i = 0; i < size; i++) {
-            if (current->next->value < 0) {
-                removeAt(i);
-                i--;
-            }
-            else {
-                current = current->next;
-            }
-        }
-    }
-
-    int count(int targetValue) {
-        int count = 0;
-        Node* current = lastNode;
-        for (int i = 0; i < size; i++) {
-            if (current->value == targetValue) {
-                count++;
-            }
-            current = current->next;
-        }
-        return count;
-    }
-
-    void clear() {
-        while (size > 0) {
-            removeAt(0);
-        }
-    }
-
-    int count() {
-        return size;
-    }
+	void toPreposition(int number) {
+		while (position != number) {
+			if (number == 0 && position == counting) { break; }
+			last = last->next;
+			position++;
+			if (position > counting) { position = 1; }
+		}
+	}
+	void add(int value) {
+		toPreposition(counting);
+		Node* node = new Node();
+		node->param = value;
+		if (counting == 0) {
+			last = node;
+			last->next = node;
+		}
+		else {
+			node->next = last->next;
+			last->next = node;
+			last = node;
+		}
+		counting++;
+		position++;
+	}
+	void insert(int index, int value) {
+		if (index == counting) {
+			add(value);
+			return;
+		}
+		toPreposition(index);
+		Node* node = new Node();
+		node->param = value;
+		node->next = last->next;
+		last->next = node;
+		last = node;
+		position++;
+		if (position > counting) { position = 1; }
+		counting++;
+	}
+	int elementAt(int index) {
+		toPreposition(index);
+		return last->next->param;
+	}
+	void removeAt(int index) {
+		toPreposition(index);
+		Node* del = last->next;
+		last->next = del->next;
+		delete del;
+		counting--;
+		if (position > counting) { position = counting; }
+		if (counting == 0) { last = nullptr; }
+	}
+	void insertBeforeNegative() {
+		int kol = counting;
+		for (int i = 0; i < kol; i++) {
+			if (last->next->param < 0) {
+				if (position != counting) { insert(position, 1); }
+				else { insert(0, 1); }
+			}
+			last = last->next;
+			position++;
+			if (position > counting) { position = 1; }
+		}
+	}
+	void removeNegative() {
+		if (counting == 0) { return; }
+		int kol = counting;
+		for (int i = 0; i < kol; i++) {
+			if (last->next->param < 0) { removeAt(position); }
+			else {
+				last = last->next;
+				position++;
+				if (position > counting) { position = 1; }
+			}
+		}
+	}
+	int count(int value) {
+		int ans = 0;
+		for (int i = 0; i < counting; i++) {
+			if (last->param == value) { ans++; }
+			last = last->next;
+		}
+		return ans;
+	}
+	void clear() {
+		for (int i = 0; i < counting; i++) {
+			Node* del = last->next;
+			last->next = del->next;
+			delete del;
+		}
+		last = nullptr;
+		counting = 0;
+		position = 0;
+	}
+	int count() { return counting; }
 };
 
 int main() {
-    setlocale(LC_ALL, "ru");
-    List myList;
-    int userCommand;
-
-    do {
-        cout << "1: Добавить элемент\n";
-        cout << "2: Вставить значение в позицию\n";
-        cout << "3: Удалить из позиции\n";
-        cout << "4: Получить значение из позиции\n";
-        cout << "5: Общее количество элементов\n";
-        cout << "6: Вставить 1 перед отрицательными\n";
-        cout << "7: Удалить отрицательные элементы\n";
-        cout << "8: Посчитать количество определенного значения\n";
-        cout << "9: Очистить список\n";
-        cout << "0: Выйти из программы\n";
-        cout << "Введите команду: ";
-        cin >> userCommand;
-
-        switch (userCommand) {
-        case 1:
-            int value;
-            cout << "Введите число: ";
-            cin >> value;
-            myList.add(value);
-            break;
-
-        case 2:
-            cout << "Введите позицию: ";
-            int index;
-            cin >> index;
-            if (index >= myList.count() || index < 0) {
-                cout << "Некорректная позиция!\n";
-            }
-            else {
-                cout << "Введите значение: ";
-                cin >> value;
-                myList.insert(index, value);
-            }
-            break;
-
-        case 3:
-            cout << "Введите позицию: ";
-            cin >> index;
-            if (index >= myList.count() || index < 0) {
-                cout << "Некорректная позиция!\n";
-            }
-            else {
-                myList.removeAt(index);
-            }
-            break;
-
-        case 4:
-            cout << "Введите позицию: ";
-            cin >> index;
-            if (index >= myList.count() || index < 0) {
-                cout << "Некорректная позиция!\n";
-            }
-            else {
-                cout << "Значение: " << myList.elementAt(index) << endl;
-            }
-            break;
-
-        case 5:
-            cout << "Общее количество элементов: " << myList.count() << endl;
-            break;
-
-        case 6:
-            myList.insertBeforeNegative();
-            break;
-
-        case 7:
-            myList.removeNegative();
-            break;
-
-        case 8:
-            cout << "Введите значение для подсчета: ";
-            cin >> value;
-            cout << "Количество: " << myList.count(value) << endl;
-            break;
-
-        case 9:
-            myList.clear();
-            cout << "Список очищен\n";
-            break;
-
-        case 0:
-            cout << "Программа завершена\n";
-            break;
-
-        default:
-            cout << "Неизвестная команда!\n";
-            break;
-        }
-    } while (userCommand != 0);
-
-    return 0;
+	setlocale(LC_ALL, "ru");
+	List list;
+	instruction();
+	while (true) {
+		cout << "\nВведите команду: ";
+		int parametr;
+		cin >> parametr;
+		switch (parametr) {
+		case 1:
+			cout << "Введите число: ";
+			int num;
+			cin >> num;
+			list.add(num);
+			break;
+		case 2:
+			cout << "Введите позицию: ";
+			int pozition;
+			cin >> pozition;
+			if (pozition > list.count() || pozition < 0) {
+				cout << "Некорректная позиция!\n";
+			}
+			else {
+				cout << "Введите число: ";
+				int value;
+				cin >> value;
+				list.insert(pozition, value);
+			}
+			break;
+		case 3:
+			cout << "Введите позицию: ";
+			cin >> pozition;
+			if (pozition >= list.count() || pozition < 0) {
+				cout << "Некорректная позиция!\n";
+			}
+			else {
+				list.removeAt(pozition);
+			}
+			break;
+		case 4:
+			cout << "Введите позицию: ";
+			cin >> pozition;
+			if (pozition >= list.count() || pozition < 0) {
+				cout << "Некорректная позиция!\n";
+			}
+			else {
+				cout << "Элемент:" << list.elementAt(pozition) << endl;
+			}
+			break;
+		case 5:
+			cout << "Количество элементов: " << list.count() << endl;
+			break;
+		case 6:
+			list.insertBeforeNegative();
+			break;
+		case 7:
+			list.removeNegative();
+			break;
+		case 8:
+			cout << "Введите число: ";
+			cin >> num;
+			cout << "Количество: " << list.count(num) << endl;
+			break;
+		case 9:
+			list.clear();
+			cout << "Список очищен\n";
+			break;
+		case 0:
+			return 0;
+		default:
+			cout << "Неизвестная команда!\n";
+		}
+	}
 }
